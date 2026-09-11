@@ -1,0 +1,12 @@
+{
+  "wake_threshold": 0.20,
+  "wake_score": 0.5,
+  "silence_seconds": 2.0,
+  "speech_rms": 200,
+  "noise_multiplier": 3.0,
+  "speech_start_seconds": 0.2,
+  "wake_tail_seconds": 0.3,
+  "detector_preroll_seconds": 0.5,
+  "wake_paths": 8,
+  "wake_reset_silence_seconds": 1.0
+}

@@ -1,0 +1,5 @@
+{
+  "time": "It's {time}, sir.",
+  "opened": "Done, sir. {application} is open.",
+  "failure": "I'm afraid I couldn't complete that request, sir."
+}

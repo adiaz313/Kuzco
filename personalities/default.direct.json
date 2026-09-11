@@ -1,0 +1,5 @@
+{
+  "time": "It's {time}.",
+  "opened": "{application} is open.",
+  "failure": "I couldn't complete that request."
+}

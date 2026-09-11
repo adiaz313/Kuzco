@@ -1,0 +1,7 @@
+[
+  {"path":"downloads/whisper-source.tar.gz","url":"https://github.com/ggml-org/whisper.cpp/archive/371b5a7561823ab2bb32142d2751e35e7534727b.tar.gz","sha256":"89051d8fca516a3ad1f5c2f8f9d2fccb089afbaec338fca3f8731999babc6f81","max_bytes":20000000,"extract":"whisper.cpp","strip_root":true},
+  {"path":"models/ggml-tiny.en.bin","url":"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin","sha256":"921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f","max_bytes":80000000},
+  {"path":"downloads/wake-model.tar.bz2","url":"https://github.com/k2-fsa/sherpa-onnx/releases/download/kws-models/sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20.tar.bz2","sha256":"68447f4fbc67e70eee3a93961f36e81e98f47aef73ce7e7ca00885c6cd3616a6","max_bytes":50000000,"extract":"sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20","strip_root":true},
+  {"path":"piper/en_GB-northern_english_male-medium.onnx","url":"https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx","sha256":"57a219ae8e638873db7d18893304be5069c42868f392bb95c3ff17f0690d0689","max_bytes":70000000},
+  {"path":"piper/en_GB-northern_english_male-medium.onnx.json","url":"https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx.json","sha256":"69557ed3d974463453e9b0c09dd99a7ed0e52b8b87b64b357dbeeb2540a97d47","max_bytes":100000}
+]

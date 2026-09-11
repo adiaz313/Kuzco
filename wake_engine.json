@@ -1,0 +1,5 @@
+{
+  "engine": "sherpa",
+  "model": ".voice/openwakeword/kuzco.onnx",
+  "threshold": 0.5
+}

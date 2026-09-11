@@ -1,0 +1,5 @@
+Llama 3.1 is licensed under the Llama 3.1 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.
+
+llama31.jinja is the tokenizer template recovered from the named Llama 3.1 GGUF,
+with a four-line Kuzco correction normalizing empty/missing tool lists to none.
+See LLAMA_LICENSE. No model weights are included.
