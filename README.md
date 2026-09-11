@@ -1,10 +1,7 @@
 # Kuzco — local macOS assistant (v1 release candidate)
 
 Kuzco combines local Llama 3.1 8B, narrow Python tools, voice interaction and an
-optional perimeter indicator. Built with Llama. This is an experimental source
-release candidate, **not a published v1 release**. Phase 13 dogfooding is complete
-for this candidate. Slow Llama-backed conversation, occasional explanation or
-web-evidence errors, and retrieval-context delays remain known v1 limitations.
+optional perimeter indicator. Built with Llama. 
 
 ## Supported configuration
 
