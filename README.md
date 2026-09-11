@@ -1,7 +1,12 @@
-# Kuzco — local macOS assistant (v1 release candidate)
+# Kuzco — Local-First Personal AI Butler
 
-Kuzco combines local Llama 3.1 8B, narrow Python tools, voice interaction and an
-optional perimeter indicator. Built with Llama. 
+Kuzco is an open-source, voice-first personal AI assistant for macOS designed to run locally on consumer hardware. It combines local LLM inference with deterministic routing, modular Skills and tools, persistent memory, document analysis, web research, and a full wake-to-response voice pipeline.
+
+Built around a local-first architecture, Kuzco keeps inference, memory, documents, speech processing, and assistant logic on your Mac wherever practical while selectively using external sources for capabilities such as current web information and weather.
+
+Kuzco v1.0.0 includes always-on wake-word detection, local speech-to-text and text-to-speech, contextual memory, RAG over local documents, web research with provenance, macOS utilities, weather and timekeeping, configurable personality, visual status indicators, and a deterministic security layer governing tool execution.
+
+**Kuzco v1.0.0 is the first public release.** It is intentionally focused on a tested Apple Silicon configuration and is designed to be understandable, modifiable, and extensible rather than hiding its architecture behind a cloud service.
 
 ## Supported configuration
 
