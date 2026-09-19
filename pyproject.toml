@@ -1,7 +1,7 @@
 [project]
 name = "kuzco-local"
-version = "1.0.0rc1"
-description = "Local macOS personal assistant release candidate"
+version = "1.0.0"
+description = "Local-first personal AI assistant for macOS"
 requires-python = "==3.14.*"
 dependencies = [
   "sounddevice==0.5.6", "cmake==4.4.3", "sherpa-onnx==1.13.7",

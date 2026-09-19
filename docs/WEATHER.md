@@ -9,7 +9,7 @@ diagnostic behavior. Compound/ambiguous requests fall back to the existing agent
 
 The default is current macOS location, requested only for weather. Run the existing
 locked setup first; `install_assets.py` now also builds the small native helper.
-For an existing RC installation:
+For an existing installation:
 
 ```sh
 uv run --locked python weather_location.py --authorize

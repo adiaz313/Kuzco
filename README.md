@@ -1,12 +1,12 @@
 # Kuzco — Local-First Personal AI Butler
 
-Kuzco is an open-source, voice-first personal AI assistant for macOS designed to run locally on consumer hardware. It combines local LLM inference with deterministic routing, modular Skills and tools, persistent memory, document analysis, web research, and a full wake-to-response voice pipeline.
+Kuzco v1.0.0 is the first public release of a local-first personal AI assistant and butler for macOS. It combines local model reasoning with deterministic routing, Skills and tools, voice interaction, memory, document retrieval, current information, and security controls.
 
 Built around a local-first architecture, Kuzco keeps inference, memory, documents, speech processing, and assistant logic on your Mac wherever practical while selectively using external sources for capabilities such as current web information and weather.
 
 Kuzco v1.0.0 includes always-on wake-word detection, local speech-to-text and text-to-speech, contextual memory, RAG over local documents, web research with provenance, macOS utilities, weather and timekeeping, configurable personality, visual status indicators, and a deterministic security layer governing tool execution.
 
-**Kuzco v1.0.0 is the first public release.** It is intentionally focused on a tested Apple Silicon configuration and is designed to be understandable, modifiable, and extensible rather than hiding its architecture behind a cloud service.
+The first release targets a tested Apple Silicon configuration and keeps the architecture inspectable and modifiable.
 
 ## Supported configuration
 
@@ -22,9 +22,12 @@ data are **not included** in this repository. Read [third-party terms](THIRD_PAR
 
 ## Clone → install → configure → test → run
 
-There is no published repository URL yet. Obtain/clone this candidate repository
-from its supplied local path. After publication the same steps start with the
-actual GitHub clone URL; do not use an invented URL.
+Clone the [public repository](https://github.com/adiaz313/Kuzco):
+
+```sh
+git clone https://github.com/adiaz313/Kuzco.git
+cd Kuzco
+```
 
 Install [uv 0.12.11](https://docs.astral.sh/uv/getting-started/installation/) from
 its official release, then from the cloned folder:
@@ -68,7 +71,7 @@ the Daniel fallback if that macOS voice is installed.
 
 Default data root: `~/Library/Application Support/Kuzco`. Override it with
 `KUZCO_HOME=/absolute/path` **consistently during setup and launch**, especially
-when comparing an existing development installation with this candidate.
+when comparing installations.
 
 | Location under the data root | Purpose |
 |---|---|
@@ -115,11 +118,12 @@ installing another clone replaces that user's service, not a parallel assistant.
 See [architecture](docs/ARCHITECTURE.md), [runtime/template recovery](docs/RUNTIME.md),
 [security](SECURITY.md), [contributing](CONTRIBUTING.md),
 [license notices](THIRD_PARTY.md), and [Phase 12 report](evaluation/PHASE12_REPORT.md).
-The candidate includes bounded Greeting, Timekeeping and Weather Skills, local
+Kuzco includes bounded Greeting, Timekeeping and Weather Skills, local
 audio-device recovery, and conservative web-page extraction. Experimental model
-routing and rejected wake-word training artifacts are not part of this candidate.
+routing and rejected wake-word training artifacts are not part of v1.0.0.
 
 Source code is offered under GPL-3.0-only; third-party templates, packages,
 weights and runtime applications retain their own terms. No model binaries or
-prebuilt application bundle are distributed. Do not publish this candidate as
-v1 before the remaining quality and redistribution review.
+prebuilt application bundle are distributed. Llama-backed conversation can be
+slower than direct tasks; occasional explanation and web-evidence errors and
+retrieval-context delays remain known v1 limitations.

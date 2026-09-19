@@ -20,7 +20,7 @@ The doctor also accepts the saved per-model JSON containing `llm.load.promptTemp
 Do not mistake checking the repository template itself for checking active settings.
 
 Enable the local OpenAI-compatible server on `localhost:1234`; do not expose it
-to the LAN. Authentication is not configured in this candidate. The application
+to the LAN. Authentication is not configured in v1.0.0. The application
 uses direct loopback HTTP, ignores HTTP proxy settings, and does not follow
 redirects. Port is configurable; cloud inference hosts are deliberately unsupported.
 
@@ -30,8 +30,8 @@ and KV offload enabled. These allocations carry substantial memory/swap cost.
 For strict baseline comparison use those values. The existing auto-loader requests
 16,384 tokens and one slot, but saved LM Studio settings can take precedence.
 Inspect actual loaded settings using `/api/v1/models`; do not assume CLI requests
-overrode saved configuration. This discrepancy is explicit and deferred to Phase
-13 measurement rather than quietly changing the memory/performance baseline.
+overrode saved configuration. This discrepancy remains a documented v1 runtime
+limitation rather than an implicit installation assumption.
 
 ## Exact historical modification
 

@@ -29,11 +29,11 @@ push-to-talk does not monitor while waiting. A shared lock prevents two listener
 
 `background.py`, `service.py` and a small native launcher supply microphone
 permission, sleep recovery and login startup. There is no full GUI. Personality
-files are independent instructions and unchanged in this release candidate.
+files are independent instructions.
 
-## Roadmap
+## Release status
 
-Phases 1–11 complete; Sherpa retained after OpenWakeWord evaluation; Piper adopted.
-Phase 12 constructs this candidate. Phase 13 will dogfood this actual installation,
-including greeting/definition quality, RAG delays and Lions/web reliability.
-Phase 14 is the eventual v1 publication decision. Neither is started automatically.
+Kuzco v1.0.0 is the first public release. Sherpa remains the wake detector after
+OpenWakeWord evaluation, and Piper is the default speech output. Historical phase
+reports in `evaluation/` describe the development and release process as it stood
+at the time; they are not instructions for the current installation.
