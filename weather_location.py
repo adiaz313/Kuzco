@@ -12,7 +12,7 @@ def executable():
 
 def current():
     try:
-        run=subprocess.run([str(executable())],capture_output=True,text=True,timeout=8,check=True)
+        run=subprocess.run([str(executable())],capture_output=True,text=True,timeout=15,check=True)
         data=json.loads(run.stdout)
         if 'error' in data:
             code=data.get('code')

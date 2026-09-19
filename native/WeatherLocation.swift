@@ -24,10 +24,10 @@ final class WeatherLocation: NSObject, CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .notDetermined:
-            if authorize {
-                app.activate(ignoringOtherApps: true)
-                manager.requestWhenInUseAuthorization()
-            } else { finish(["error": "Allow Kuzco Weather location access using the documented setup command.", "code": "permission_required"]) }
+            // macOS may treat Terminal and the background launcher as distinct
+            // responsible apps. Ask in the context that actually requested weather.
+            app.activate(ignoringOtherApps: true)
+            manager.requestWhenInUseAuthorization()
         case .authorizedAlways, .authorizedWhenInUse:
             if authorize { finish(["authorized": true]); return }
             if !requested { requested = true; manager.startUpdatingLocation() }
@@ -49,7 +49,9 @@ final class WeatherLocation: NSObject, CLLocationManagerDelegate {
 }
 let delegate = WeatherLocation()
 DispatchQueue.main.async { delegate.begin() }
-DispatchQueue.main.asyncAfter(deadline: .now() + (authorize ? 60 : 6)) {
-    delegate.finish(["error": "Weather location request timed out.", "code": "location_timeout"])
+DispatchQueue.main.asyncAfter(deadline: .now() + (authorize ? 60 : 12)) {
+    let pending = delegate.manager.authorizationStatus == .notDetermined
+    delegate.finish(["error": pending ? "Weather location permission is required." : "Weather location request timed out.",
+                     "code": pending ? "permission_required" : "location_timeout"])
 }
 app.run()

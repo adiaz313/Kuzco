@@ -1,9 +1,11 @@
 import unittest
-from unittest.mock import patch
+from datetime import date
+from unittest.mock import Mock, patch
 from page_extract import extract,MAX_EVIDENCE
 from skills import select
 from web_search import query_allowed
-from skills.evidence import plan, short_document_quote
+from skills.evidence import plan, short_document_quote, schedule_answer, schedule_source
+from routed import RoutingAgent
 
 
 class ReliabilityTests(unittest.TestCase):
@@ -26,6 +28,50 @@ class ReliabilityTests(unittest.TestCase):
             self.assertEqual(skill.name,'web_research',text)
             self.assertNotIn('open_application',skill.tools)
             self.assertNotIn('search_documents',skill.tools)
+
+    def test_schedule_answer_requires_clear_future_source_evidence(self):
+        page={'title':'Owls 2026 Schedule', 'url':'https://owls.example/schedule/',
+              'query_matched':True,'sections':[{'text':
+                  'PRESEASON WEEK 1 · Sun 08/23 · FINAL '
+                  'REGULAR SEASON WEEK 1 · Sun 09/13 · FINAL '
+                  'WEEK 2 · Sun 09/27 · 1:00 PM EDT '
+                  'WEEK 3 · Sun 10/04 · 4:25 PM EDT'}]}
+        answer=schedule_answer('When do the Owls play next?',page,date(2026,9,19))
+        self.assertIn('Sunday, September 27 at 1:00 PM EDT',answer)
+        self.assertIn(page['url'],answer)
+        generic_title=page|{'title':'The Official Site of the Owls',
+                            'sections':[{'text':'Owls 2026 Schedule | Official PRESEASON WEEK 1 · Sun 08/23 · FINAL '
+                                                'REGULAR SEASON WEEK 2 · Sun 09/27 · 1:00 PM EDT'}]}
+        self.assertIn('September 27',schedule_answer('When do the Owls play next?',generic_title,date(2026,9,19)))
+        for changed in ({'title':'Falcons 2026 Schedule'},
+                        {'url':'https://owls.example/news/'},
+                        {'query_matched':False},
+                        {'sections':[{'text':'REGULAR SEASON WEEK 2 · Mon 09/27 · 1:00 PM EDT'}]},
+                        {'sections':[{'text':'No scheduled kickoff listed'}]}):
+            with self.subTest(changed=changed):
+                self.assertIsNone(schedule_answer('When do the Owls play next?',page|changed,date(2026,9,19)))
+
+    def test_exact_schedule_page_beats_high_scoring_roundup(self):
+        rows={'results':[
+            {'title':'Owls schedule','url':'https://owls.example/schedule/','snippet':'Current fixtures'},
+            {'title':'When do the Owls play next? Owls next game and times',
+             'url':'https://sports.example/owls-schedule/','snippet':'When do the Owls play next? '*8}]}
+        self.assertEqual(schedule_source('When do the Owls play next?',rows),rows['results'][0]['url'])
+
+    def test_clear_schedule_answer_uses_policy_tools_without_llama(self):
+        url='https://owls.example/schedule/'
+        search={'results':[{'title':'Owls 2026 Schedule','url':url,'snippet':'Upcoming games'}]}
+        page={'title':'Owls 2026 Schedule','url':url,'query_matched':True,
+              'sections':[{'text':'REGULAR SEASON WEEK 2 · Sun 09/27 · 1:00 PM EDT'}]}
+        real_answer=schedule_answer
+        session=Mock();session.ensure.side_effect=AssertionError('No model needed')
+        with patch('main.search_web',return_value=search) as found,\
+             patch('main.read_webpage',return_value=page) as read,\
+             patch('skills.evidence.schedule_answer',side_effect=lambda p,r:real_answer(p,r,date(2026,9,19))),\
+             patch('main.chat',side_effect=AssertionError('No model needed')):
+            answer=RoutingAgent('direct',session)('When do the Owls play next?')
+        self.assertIn('September 27',answer)
+        found.assert_called_once();read.assert_called_once();session.ensure.assert_not_called()
 
     def test_stable_definition_and_local_requests_remain_separate(self):
         self.assertEqual(select('What is an embedding?').tools,())

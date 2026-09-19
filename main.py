@@ -290,7 +290,7 @@ def run(prompt, documents=(), debug=False, send=chat, history=None, max_steps=5,
             web_seen = web_seen or choice['tool'] in ('research_web','search_web','read_webpage')
             searches = int(choice['tool'] in ('search_web','research_web'))
             if skill_fast_paths:
-                from skills.evidence import short_document_quote, schedule_source
+                from skills.evidence import short_document_quote, schedule_source, schedule_answer
                 if choice['tool']=='search_documents':
                     quoted=short_document_quote(prompt,result)
                     if quoted:
@@ -306,6 +306,11 @@ def run(prompt, documents=(), debug=False, send=chat, history=None, max_steps=5,
                     first_step+=1
                     page_reads=1
                     debug_print(debug,'prepared schedule evidence',result)
+                    answer=schedule_answer(prompt,result)
+                    if answer:
+                        turn.append({'role':'assistant','content':json.dumps({'answer':answer})})
+                        debug_print(debug,'final answer',answer)
+                        return answer
         for step in range(first_step, max_steps + 1):
             # Evict old complete turns to make room; never truncate active evidence.
             while history and len(json.dumps(history + [turn])) > HISTORY_CHARS:

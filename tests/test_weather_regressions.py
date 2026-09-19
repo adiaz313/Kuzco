@@ -54,6 +54,15 @@ class WeatherRegressionTests(unittest.TestCase):
             with self.assertRaises(ValueError):weather_location.current()
         self.assertIn('location_timeout',str(logs.output));self.assertNotIn('private',str(logs.output));self.assertNotIn('42.12345',str(logs.output))
 
+    def test_background_permission_pending_fails_safely_then_time_works(self):
+        output=json.dumps({'error':'Allow location for this background app.','code':'permission_required'})
+        a=RoutingAgent('direct',Mock())
+        with patch('weather_location.subprocess.run',return_value=Mock(stdout=output)),\
+             patch('weather.urllib.request.build_opener') as provider:
+            self.assertIn('current location',a("What's the weather today?"))
+            self.assertIn('M',a('What time is it?'))
+        provider.assert_not_called()
+
     def test_forecast_failure_then_success_preserves_agent(self):
         a=RoutingAgent('direct',Mock())
         with patch('weather.get_weather',side_effect=[{'error':'Location temporarily unavailable.'},normalize(fixture())]):
