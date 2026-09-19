@@ -18,11 +18,15 @@ uv run --locked python weather_location.py --authorize
 Use the same `KUZCO_HOME` as your installation. Allow **Kuzco Weather** when macOS
 asks. Location Services must be enabled. No access to the Weather app's private
 data is needed. The helper uses Core Location, one fix per weather request, a
-six-second acquisition deadline, and ignores initial fixes over five minutes old or over
+12-second acquisition deadline, and ignores initial fixes over five minutes old or over
 10 km in reported uncertainty while waiting for a usable update within that same deadline.
 Updates stop at success/failure/timeout; there is no ongoing tracking. It rounds coordinates to two decimal places before
 passing them to Python. No location history is stored. macOS location behavior
 depends on OS services and network availability; a fresh fix is not guaranteed.
+macOS can treat Terminal and the background launcher as different permission
+contexts. If the first background weather request displays a location prompt,
+allow it and ask again. A denied or timed-out location request returns an error;
+Kuzco never substitutes a guessed location.
 
 If location is denied/unavailable, Kuzco reports that and performs no forecast
 request. It does not silently assume a home city or use IP geolocation. An optional
