@@ -1,6 +1,6 @@
 # Maps / Places
 
-Kuzco's post-v1 Maps/Places integration is a narrow signed Swift helper built
+Kuzco's Maps/Places integration is a narrow signed Swift helper built
 on Apple MapKit and Core Location. It does not scrape or automate the Maps UI.
 
 Implemented primitives:

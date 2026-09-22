@@ -14,8 +14,8 @@ This is an application boundary, not a Python sandbox. Installed code, local con
 
 | Risk | Current actions |
 |---|---|
-| READ_ONLY | Time, document search, web search, webpage reading, research, memory recall |
-| LOCAL_ACTION | Named application launch; explicit remember/update/forget of bounded personal memory records |
+| READ_ONLY | Time, weather, document/web/page/research retrieval, memory recall, Calendar reads, place/route/travel queries, and recommendations |
+| LOCAL_ACTION | Named application launch/focus; bounded volume and Apple Music control; explicit Reminders changes; route opening; explicit remember/update/forget of bounded personal memory records |
 | EXTERNAL_ACTION | No production tool; future registered actions require trusted confirmation |
 | SENSITIVE_DESTRUCTIVE | No production tool; denied by the v1 policy |
 

@@ -4,7 +4,9 @@
 selects narrow Python fast paths or resident Llama 3.1 8B. Experimental explicit
 model selectors remain development-only; no automatic 1B/3B adoption.
 
-`skills/` contains Web Research, Document Analysis and Mac Utility. Skills narrow
+`skills/` contains bounded Web Research, Document Analysis, Mac Utility,
+Reminders, Calendar, Maps/Places, Travel Time, Recommendations, Greeting,
+Timekeeping, and Weather task layers. Skills narrow
 instructions/tool availability; they never grant permissions. `security_policy.py`
 authorizes every relevant tool/state action using trusted request scope. External
 text, model decisions and personality cannot authorize privileged actions.
@@ -27,13 +29,19 @@ fallback; only sanitized final answers are spoken. Audio processing stays local,
 and temporary activated recordings are removed. Idle wake monitoring is explicit;
 push-to-talk does not monitor while waiting. A shared lock prevents two listeners.
 
-`background.py`, `service.py` and a small native launcher supply microphone
-permission, sleep recovery and login startup. There is no full GUI. Personality
-files are independent instructions.
+`calendar_read.py`, `reminders.py`, `maps_places.py`, and `mac_control.py` wrap
+small fixed native helpers. They exchange bounded structured data; user/model
+text never becomes executable source. Location and Calendar details are used
+only for the active task and are not persisted as history.
+
+`background.py`, `service.py` and a small signed native launcher supply microphone
+permission, sleep recovery, login startup, and binary runtime status. The menu
+master switch stops/starts the assistant child without controlling LM Studio.
+There is no full GUI. Personality files are independent instructions.
 
 ## Release status
 
-Kuzco v1.0.0 is the first public release. Sherpa remains the wake detector after
+Kuzco v1.5.0 is the current release line. Sherpa remains the wake detector after
 OpenWakeWord evaluation, and Piper is the default speech output. Historical phase
 reports in `evaluation/` describe the development and release process as it stood
 at the time; they are not instructions for the current installation.

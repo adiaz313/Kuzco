@@ -1,6 +1,6 @@
 # Travel Time
 
-Kuzco's post-v1 Travel Time Skill composes the existing read-only Calendar,
+Kuzco's Travel Time Skill composes the existing read-only Calendar,
 MapKit/Places, current-location, and Timekeeping components. It supports bounded
 questions about current route duration and distance, reaching an explicit
 destination by a stated time, when to leave, and the next or a named Calendar
@@ -23,4 +23,3 @@ request. Kuzco does not create travel history or persist coordinates, addresses,
 route payloads, or Calendar locations in Memory or ordinary logs. MapKit sends
 the minimum route/place inputs needed to Apple's service; local orchestration,
 documents, Memory, personality, and general conversation history remain local.
-

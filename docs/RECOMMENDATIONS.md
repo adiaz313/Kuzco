@@ -1,6 +1,6 @@
 # Local place recommendations
 
-Kuzco's post-v1 Recommendations Skill helps choose among real local places
+Kuzco's Recommendations Skill helps choose among real local places
 returned by Apple MapKit. It is deliberately bounded to local coffee, food,
 category, distance-sensitive, and next-appointment-relative requests.
 
@@ -24,4 +24,3 @@ inferred preferences are not added to Memory or ordinary conversation history.
 
 This Skill does not book, order, call, message, purchase, or create Calendar or
 Memory records. Ordinary Phase 8 place lookup and route actions remain separate.
-

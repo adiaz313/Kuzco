@@ -1,4 +1,4 @@
-# Bounded Mac control (post-v1 Phase 4)
+# Bounded Mac control
 
 Kuzco accepts clear, whole-request commands for opening an app (existing), focusing an already-running app, changing the selected output device's volume by 10 percentage points, setting volume from 0–100%, and muting/unmuting. The new controls run before Llama. A fixed Swift AppKit helper focuses an exact running app name; another uses public CoreAudio properties and verifies changes. Unsupported output devices report failure.
 

@@ -1,170 +1,220 @@
-# Kuzco — Local-First Personal AI Butler
+# Kuzco — local-first personal AI butler for macOS
 
-Kuzco v1.0.0 is the first public release of a local-first personal AI assistant and butler for macOS. It combines local model reasoning with deterministic routing, Skills and tools, voice interaction, memory, document retrieval, current information, and security controls.
+Kuzco v1.5.0 is an inspectable personal assistant for Apple Silicon Macs. It
+combines deterministic Python Skills, narrow native macOS integrations, and a
+local Llama 3.1 8B model. Common tasks such as time, greetings, reminders,
+calendar queries, volume, Maps routes, and recommendations use structured code
+and native data. Llama handles conversation, interpretation, and synthesis when
+those tasks genuinely require language reasoning.
 
-Built around a local-first architecture, Kuzco keeps inference, memory, documents, speech processing, and assistant logic on your Mac wherever practical while selectively using external sources for capabilities such as current web information and weather.
+Kuzco is **local-first**, not fully offline. Llama inference, wake detection,
+speech recognition, speech output, memory, document retrieval, policy, and
+assistant logic run locally. Weather, DDGS search/web reading, and Apple
+MapKit/Places require network access. Calendar, Reminders, Music, location, and
+audio controls use permission-controlled macOS services.
 
-Kuzco v1.0.0 includes always-on wake-word detection, local speech-to-text and text-to-speech, contextual memory, RAG over local documents, web research with provenance, macOS utilities, weather and timekeeping, configurable personality, visual status indicators, and a deterministic security layer governing tool execution.
+## What v1.5.0 supports
 
-Post-v1 development adds [Apple Reminders and lightweight tasks](docs/REMINDERS.md)
-through a narrow local EventKit helper. macOS asks for Reminders access on first use.
-Timers are deferred.
+- “Kuzco” wake listening with Sherpa, local Whisper STT, and local Piper TTS
+  (Daniel is an optional macOS fallback).
+- Kuzco and neutral personalities, interactive text/chat, push-to-talk, and the
+  green/purple/blue LISTENING/THINKING/SPEAKING perimeter indicator.
+- Fast deterministic greetings, local time/date, and current weather.
+- DDGS web search, bounded webpage reading, and multi-source answers with source
+  metadata; external content remains untrusted data.
+- RAG over a user-configured small collection of `.txt`, `.md`, or `.docx`
+  files. No personal document ships with the project.
+- Explicit SQLite memory: remember, recall, update, and forget bounded facts.
+- Apple Reminders: list, create, complete, and uniquely remove reminders/tasks.
+- Bounded Mac controls: open/focus named apps, set/adjust/mute output volume,
+  and selected Apple Music transport, song, and playlist operations.
+- Read-only Calendar queries and schedule summaries.
+- Apple MapKit place lookup, directions, route distance/time, calendar-aware
+  travel calculations, and grounded nearby recommendations.
+- A signed menu-bar host with runtime/wake/model status, a real master enable
+  switch, login startup, and clean quit.
 
-The first release targets a tested Apple Silicon configuration and keeps the architecture inspectable and modifiable.
+Kuzco does not expose shell commands, arbitrary AppleScript or Shortcuts,
+browser automation, file deletion, keyboard/mouse automation, Calendar writes,
+or unrestricted computer control. Apple Podcasts control, display brightness,
+timers, and a Kuzco-owned notification subsystem are not currently supported.
 
-## Supported configuration
+## Architecture and trust boundary
 
-- Apple Silicon Mac, macOS **14 or later**, 16 GB memory tested. No Intel/Linux/Windows claim.
-- Apple Command Line Tools (`xcode-select --install`), including Git, Swift and Clang.
-- **uv 0.12.11**; pinned **Python 3.14.7** is managed by uv.
-- LM Studio running locally on port 1234, with **Meta Llama 3.1 8B Instruct Q4_K_M**.
-- Sherpa keyword spotting, Whisper tiny.en, and Piper northern English male voice.
-- Internet for installation and optional DDGS/web retrieval. Inference and audio stay local.
+```text
+user → wake/text input → deterministic routing/Skills
+     → grounded tools and native integrations → security policy
+     → Llama only where interpretation is useful → grounded response
+     → local speech output
+```
 
-The Llama weights, LM Studio application, voice weights, credentials and personal
-data are **not included** in this repository. Read [third-party terms](THIRD_PARTY.md).
+**Deterministic when possible; Llama when intelligence is required.** Llama is
+not the factual authority for time, weather observations, Calendar, Reminders,
+Maps, routes, travel estimates, application state, or menu lifecycle.
 
-## Clone → install → configure → test → run
+Every relevant tool action passes through trusted policy code:
 
-Clone the [public repository](https://github.com/adiaz313/Kuzco):
+```text
+LLM/Skill proposes → policy authorizes → narrow tool executes
+```
+
+Retrieved web/document text, model output, personality instructions, and Skill
+instructions cannot grant permissions. See [architecture](docs/ARCHITECTURE.md)
+and [security](SECURITY.md).
+
+## Tested configuration
+
+- Apple Silicon Mac; macOS 14 or later. Development validation used an M1 Mac
+  with 16 GB unified memory. Intel, Linux, and Windows are unsupported.
+- Apple Command Line Tools, including Git, Swift, and Clang.
+- [uv](https://docs.astral.sh/uv/) **0.12.11** and uv-managed Python **3.14.7**.
+- LM Studio on loopback port 1234.
+- `lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF`, file
+  `Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf`.
+- The versioned corrected prompt template in `runtime/llama31.jinja`.
+
+The repository does not contain Llama weights, LM Studio, voice/wake/STT weights,
+credentials, compiled app bundles, or personal data. Review [third-party terms](THIRD_PARTY.md).
+
+## Install
+
+Clone the public repository and install the locked environment:
 
 ```sh
 git clone https://github.com/adiaz313/Kuzco.git
 cd Kuzco
-```
-
-Install [uv 0.12.11](https://docs.astral.sh/uv/getting-started/installation/) from
-its official release, then from the cloned folder:
-
-```sh
 uv sync --locked --managed-python --group release-test
 uv run --locked python configuration.py
 uv run --locked python install_assets.py --accept-model-terms
 ```
 
-The last command explicitly downloads checksum-verified public assets and builds
-Whisper and the indicator. It can take several minutes. It does not activate a
-microphone or install a background service. No models download during normal use.
-Rerunning setup retains your configuration and verifies downloaded files.
+Asset setup downloads checksum-verified public voice/wake/STT assets, builds
+Whisper and the native helpers, and may take several minutes. It does not start
+the microphone or install the login service. Review the Sherpa/Piper model terms
+before accepting them.
 
-**Complete [LM Studio setup](docs/RUNTIME.md) before language requests.** The
-corrected template is an explicit runtime requirement, not modified model weights.
-Load only the 8B model, start the local server, and verify the template:
+### LM Studio setup
+
+Follow [the exact runtime instructions](docs/RUNTIME.md). In summary:
+
+1. Install the named Q4_K_M model and use identifier
+   `meta-llama-3.1-8b-instruct`.
+2. In that model’s Jinja prompt-template setting, paste the complete contents of
+   `runtime/llama31.jinja`, save it for the model, and reload it.
+3. Bind LM Studio’s local API only to `localhost:1234`; keep CORS and verbose
+   request logging off and content redaction on.
+4. Export the active template and verify it:
 
 ```sh
-uv run --locked python doctor.py --live --template-config /absolute/path/to/exported-active-template.jinja
+uv run --locked python doctor.py --live \
+  --template-config /absolute/path/to/exported-active-template.jinja
+```
+
+This explicit template correction is required; an untouched stock template is
+not the validated configuration. No model weights are modified.
+
+### Configure and test
+
+Kuzco’s default data root is `~/Library/Application Support/Kuzco`. Override it
+with `KUZCO_HOME=/absolute/path` consistently during setup and launch.
+
+| Data-root location | Purpose |
+|---|---|
+| `config/kuzco.toml` | model, port, personality, and document paths |
+| `config/voice_settings.json` | wake and endpoint thresholds |
+| `config/tts_settings.json` | Piper/Daniel choice and voice path |
+| `config/wake_engine.json` | Sherpa wake configuration |
+| `config/security_settings.json` | tool-disable settings |
+| `assets/` | downloaded/built local runtime assets |
+| `kuzco.db` | explicit memory, created only when used |
+| `logs/` | bounded lifecycle/security metadata |
+
+`documents = []` is the clean default. Add absolute paths to your own `.txt`,
+`.md`, or `.docx` files. Never commit your data directory, private configuration,
+documents, database, recordings, or logs.
+
+Run the complete test suite:
+
+```sh
 uv run --locked --group release-test python -m unittest discover -s tests
+```
+
+## Run Kuzco
+
+Text chat:
+
+```sh
 uv run --locked python main.py --chat --personality kuzco
 ```
 
-For the complete voice experience (microphone permission required):
+Push-to-talk or wake mode:
 
 ```sh
+uv run --locked python main.py --voice --personality kuzco
 uv run --locked python main.py --wake --personality kuzco --indicator
 ```
 
-Say “Kuzco, what time is it?” or “Kuzco, open Calculator.” Green means LISTENING,
-purple THINKING, blue SPEAKING; the perimeter clears at IDLE. Ctrl-C exits.
-Push-to-talk: replace `--wake` with `--voice`. Text single request:
-`uv run --locked python main.py "What time is it?" --personality kuzco`.
-Use `--debug` only when you want prompts, evidence and answers visible in Terminal.
-Use `--personality default` for neutral responses; `--tts-engine macos` selects
-the Daniel fallback if that macOS voice is installed.
+Allow microphone access when macOS asks. Only final human-facing responses are
+spoken. Add `--debug` only when you intentionally want prompts and evidence in
+Terminal; review debug output before sharing it.
 
-## Your data and configuration
+### Background service and menu bar
 
-Default data root: `~/Library/Application Support/Kuzco`. Override it with
-`KUZCO_HOME=/absolute/path` **consistently during setup and launch**, especially
-when comparing installations.
-
-| Location under the data root | Purpose |
-|---|---|
-| `config/kuzco.toml` | Local server port, model ID, background personality, document paths |
-| `config/voice_settings.json` | Existing wake and end-of-speech thresholds |
-| `config/tts_settings.json` | Piper/Daniel selection; Piper path relative to `assets` or absolute |
-| `config/wake_engine.json` | Sherpa default; rejected OpenWakeWord experiment is not installed |
-| `config/security_settings.json` | Deterministic tool disable list |
-| `assets/` | Downloaded weights, pinned Whisper source/build, indicator binary |
-| `kuzco.db` | Explicit personal memory; absent until first use |
-| `logs/` | Bounded background and security metadata |
-
-The repository JSON files are inspectable defaults; user overrides win. Restart
-after configuration edits. `KUZCO_MEMORY_DB` is an optional legacy database-path
-override; unset it for a genuinely fresh installation. No other hidden data is
-imported. `documents = []` means no personal RAG collection. Set an absolute list
-of `.txt`, `.md`, or `.docx` files in TOML, or use `--docs` in the foreground.
-`examples/notes.txt` is explicitly fictional. **Never commit your configuration,
-documents, database, recordings or logs.**
-
-No credentials are needed for normal v1 tools. Future trusted integrations must
-use `credentials.CredentialStore` and macOS Keychain. Do not put secrets in TOML,
-JSON, memory, prompts or environment files. See [security](SECURITY.md).
-
-## Optional background startup
-
-First pass the foreground check. Ensure another Kuzco listener is stopped. Then:
+After foreground voice mode works:
 
 ```sh
 uv run --locked python service.py install
 uv run --locked python service.py status
 ```
 
-Allow microphone access for **Kuzco Background**. The service captures the clone
-and data-root paths during installation and uses that clone's `.venv`; keep both
-locations. It follows the selected macOS microphone. After a stale headset
-connection, select a working microphone and run `service.py restart`.
-`service.py stop` stops it now; `service.py uninstall` removes login startup but
-retains all user data. There is one per-user service label and one microphone lock:
-installing another clone replaces that user's service, not a parallel assistant.
+The signed **Kuzco Background** host runs at login and follows the selected macOS
+microphone. macOS may separately request Calendar, Reminders, Location, and Music
+Automation permission when those capabilities are first used.
 
-The installed background host also provides a small native [menu-bar status and
-master control](docs/MENU_BAR.md). Its switch stops or restores the actual wake
-listener; status checks are local and never call Llama.
+The menu reports:
 
-Post-v1 development adds [bounded Mac control](docs/MAC_CONTROL.md) for volume,
-focus, and selected native Apple Music actions. Re-run the asset setup and
-reinstall the background service after updating this source; macOS may request
-Automation permission for Music. Unsupported Podcasts, artist/album queue,
-app-quit, and brightness requests are documented there.
+- **Kuzco:** Running, Paused, or Not Running.
+- **Wake Word:** On or Off.
+- **Local Model:** **Available** in green when LM Studio can reach the configured
+  model; **Unavailable** in red otherwise. Loaded versus idle is intentionally
+  not exposed.
+- **Kuzco Enabled:** stops or restores the actual assistant/wake listener. It
+  does not stop or unload LM Studio.
+- **Quit Kuzco:** cleanly stops the host for the current login session.
 
-The post-v1 read-only Calendar integration supports explicit requests for
-today, tomorrow, and the next event or timed event. It uses a separate signed
-EventKit helper and never creates, changes, or removes calendar events. macOS
-requires full Calendar permission to read EventKit data even though Kuzco's
-helper exposes read operations only. Re-run asset setup after updating, then
-allow **Kuzco Calendar** under Privacy & Security → Calendars when prompted.
-Calendar details are retrieved only for an explicit request and are not added
-to memory, greeting context, ordinary logs, or unrelated model prompts.
+Use `service.py restart` after changing configuration or recovering from a stale
+audio-device handoff. Use `service.py start` after Quit, and `service.py uninstall`
+to remove login startup while retaining user data. See [menu details](docs/MENU_BAR.md).
 
-Post-v1 Maps/Places support uses a separate signed Apple MapKit helper for
-structured place search, explicit ambiguity, route distance/ETA, and opening a
-validated route in Apple Maps. See [Maps/Places](docs/MAPS_PLACES.md). Place
-search and routing use Apple's network service; Llama remains local. Current
-location is requested only for a nearby/current-origin operation and is never
-stored in memory or ordinary logs. Re-run asset setup after updating.
+## Permissions and network use
 
-The post-v1 [Travel Time Skill](docs/TRAVEL_TIME.md) composes those grounded
-MapKit estimates with deterministic time arithmetic and, when explicitly
-requested, the existing read-only Calendar integration. It does not retain
-location or route history and applies extra time only when the user supplies a
-buffer.
+| Capability | Permission/service |
+|---|---|
+| Wake/STT | Microphone; audio remains local |
+| Calendar | Full Calendar permission required by EventKit; Kuzco reads only |
+| Reminders | Reminders full access for the bounded supported actions |
+| Apple Music | Automation permission when native playback is requested |
+| Weather/Maps/Places/routes | Location when needed; Apple/network provider |
+| Web research | DDGS and selected public HTTP(S) pages |
 
-The post-v1 [Recommendations Skill](docs/RECOMMENDATIONS.md) selects a small
-set of real local MapKit candidates using grounded distance. It does not invent
-ratings, hours, prices, reviews, or menu details and stores no recommendation
-or location history.
+Current location and Calendar locations are purpose-limited to the active task
+and are not added to memory or ordinary logs. Web queries send only the minimum
+query needed; full conversation history, documents, memory, personality, and
+system prompts are not sent to DDGS.
 
-## Development and limitations
+## Known limitations
 
-See [architecture](docs/ARCHITECTURE.md), [runtime/template recovery](docs/RUNTIME.md),
-[security](SECURITY.md), [contributing](CONTRIBUTING.md),
-[license notices](THIRD_PARTY.md), and [Phase 12 report](evaluation/PHASE12_REPORT.md).
-Kuzco includes bounded Greeting, Timekeeping and Weather Skills, local
-audio-device recovery, and conservative web-page extraction. Experimental model
-routing and rejected wake-word training artifacts are not part of v1.0.0.
+- Installation is technical and requires manual LM Studio/model/template and
+  macOS permission setup.
+- Llama-backed conversation and synthesis are slower than deterministic Skills
+  and can still make mistakes; grounded evidence should be treated accordingly.
+- DDGS and public pages can fail, rate-limit, or provide incomplete snippets.
+- MapKit, weather, and route availability vary by network and region; estimates
+  are not guarantees, and ratings are not available through the current adapter.
+- Named Music playback is limited to uniquely matched content in the user’s
+  native library. Output devices may not expose writable system volume.
+- The source distribution downloads runtime model assets separately; their
+  upstream licenses remain distinct from Kuzco’s GPL source license.
 
-Source code is offered under GPL-3.0-only; third-party templates, packages,
-weights and runtime applications retain their own terms. No model binaries or
-prebuilt application bundle are distributed. Llama-backed conversation can be
-slower than direct tasks; occasional explanation and web-evidence errors and
-retrieval-context delays remain known v1 limitations.
+See [release notes](RELEASE_NOTES_v1.5.0.md), [contributing](CONTRIBUTING.md),
+[license](LICENSE), and [third-party notices](THIRD_PARTY.md).

@@ -20,7 +20,7 @@ The doctor also accepts the saved per-model JSON containing `llm.load.promptTemp
 Do not mistake checking the repository template itself for checking active settings.
 
 Enable the local OpenAI-compatible server on `localhost:1234`; do not expose it
-to the LAN. Authentication is not configured in v1.0.0. The application
+to the LAN. Authentication is not configured in v1.5.0. The application
 uses direct loopback HTTP, ignores HTTP proxy settings, and does not follow
 redirects. Port is configurable; cloud inference hosts are deliberately unsupported.
 
