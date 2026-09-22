@@ -1,10 +1,11 @@
 # Post-v1 Phase 12 — v1.5.0 Release Engineering
 
-Status: **12A–12G COMPLETE; PRE-PUBLICATION GATES PASSED; v1.5.0 PUBLICATION APPROVED**
+Status: **PHASE 12 COMPLETE — KUZCO v1.5.0 PUBLISHED AND VERIFIED**
 
-Target release: Kuzco v1.5.0. Product and UX scope are frozen. No v1.5.0 tag
-or release has been created or pushed. The existing annotated v1.0.0 tag remains
-unchanged and resolves to release commit `948a600a860986a437a583dd4a70c55eeb7870be`.
+Released version: Kuzco v1.5.0. Product and UX scope are frozen. The annotated
+v1.5.0 tag and GitHub Release are public. The existing annotated v1.0.0 tag
+remains unchanged and resolves to release commit
+`948a600a860986a437a583dd4a70c55eeb7870be`.
 
 ## Entry inventory
 
@@ -280,3 +281,36 @@ unchanged and are not release blockers. The existing `v1.0.0` tag remains
 untouched at `948a600a860986a437a583dd4a70c55eeb7870be`.
 
 **PHASE 12 PRE-PUBLICATION GATES PASSED — v1.5.0 PUBLICATION APPROVED**
+
+## 12H–12I — publication and public verification
+
+The synchronized `main` branch and annotated `v1.5.0` tag were pushed without
+force or history rewriting. The public release is:
+
+- Repository: `https://github.com/adiaz313/Kuzco`
+- Release: `https://github.com/adiaz313/Kuzco/releases/tag/v1.5.0`
+- Final publication and peeled `v1.5.0` SHA:
+  `d25ed26bba8e3d0d792fcc7bed7295e5c9e2d6f3`
+- Final executable RC SHA:
+  `b8ca7134719d2cc81543855636f6731715541cb3`
+- Preserved peeled `v1.0.0` SHA:
+  `948a600a860986a437a583dd4a70c55eeb7870be`
+- Regression result: **382/382 passing**
+
+GitHub reports the release title **Kuzco v1.5.0**, tag `v1.5.0`, published at
+2026-09-22T16:23:06Z, with neither draft nor prerelease status. A fresh clone
+from the actual public tag resolved to the exact publication SHA, had a clean
+tree, and contained the expected README, release notes, lockfile, licenses,
+attribution, source, tests, and menu assets. The public README hash matched the
+fresh clone. A final scan of the public clone found no secret/private runtime
+file or private user content; references to Sea Foods and `/Users/armando` occur
+only in this publication-safe audit report as explicit negative findings.
+
+The executable release remains exactly the soaked and tested candidate. The
+later publication commit contains only documentation/evaluation and version
+metadata. Known limitations and future installation/accessibility/distribution
+work remain deferred to a separate project.
+
+**PHASE 12 — RELEASE CLEANUP, SYNCHRONIZATION & PUBLICATION COMPLETE**
+
+**KUZCO v1.5.0 PUBLISHED + VERIFIED**
