@@ -1,6 +1,6 @@
 # Post-v1 Phase 12 — v1.5.0 Release Engineering
 
-Status: **12A COMPLETE; 12B SOAK IN PROGRESS; 12C–12G COMPLETE**
+Status: **12A–12G COMPLETE; PRE-PUBLICATION GATES PASSED; v1.5.0 PUBLICATION APPROVED**
 
 Target release: Kuzco v1.5.0. Product and UX scope are frozen. No v1.5.0 tag
 or release has been created or pushed. The existing annotated v1.0.0 tag remains
@@ -114,7 +114,13 @@ the full suite passed **382/382**, the tracked `uv.lock` was unchanged at RC
 establishment, and the signed background host was rebuilt and installed from
 that repository. The launch configuration points to the canonical repository
 and the separate private data root. The required multi-day soak began on
-2026-09-22 and remains in progress; no elapsed-time claim is made here.
+2026-09-22. The user subsequently declared the normal-use soak complete against
+this exact executable candidate. No executable change occurred during the soak,
+and the user reported no remaining release-blocking crash, hang, wake/audio,
+menu-lifecycle, native-integration, model/runtime, security, or privacy defect.
+This records only the observed candidate identity and the user's completion
+declaration; it does not invent an elapsed duration or interaction count. Phase
+12B is complete.
 
 ## 12C — v1.5.0 identity and scope lock
 
@@ -238,3 +244,39 @@ restored wake operation; a greeting completed through Piper; and Quit removed
 the menu item. After this isolated check, the normal service using the private
 Kuzco data directory was restored and verified running. No clean-install test
 state replaced or entered the user's normal private data directory.
+
+## Final pre-publication reconciliation
+
+The final executable RC remains
+`b8ca7134719d2cc81543855636f6731715541cb3`. Its descendants through the commit
+containing this finalized report change only publication-safe documentation,
+evaluation evidence, and matching package/lock version metadata from 1.0.0 to
+1.5.0. They make no Python, native-code, runtime-configuration, dependency,
+asset, or executable-behavior change. The annotated `v1.5.0` tag is therefore
+approved to target the commit containing this finalized report; the immutable
+tag itself is the canonical resolution of the exact final publication SHA.
+
+The final candidate is one clean `main` tree with all required source, tests,
+assets, documentation, release notes, licenses, attribution, and `uv.lock`
+tracked. Current documentation consistently presents Local Model as green
+**Available** or red **Unavailable**, describes the explicit reproducible LM
+Studio/Llama template correction, and accurately lists unsupported/deferred
+capabilities. The final authoritative regression result is **382/382 passing**.
+
+The redundant release audit found no known dependency vulnerabilities and no
+medium/high Bandit findings. Current-tree and reachable-history scans found no
+secret, credential, private key, private configuration, database, log, audio,
+transcript, personal document, user-derived fixture, Sea Foods-derived content,
+private location/history, screenshot, cache, or build artifact in publication
+content. The separate private `kuzco-v1-data` directory is outside Git and is
+not an installation input. The deterministic policy boundary remains intact:
+LLMs propose, trusted policy authorizes, and narrow tools execute; no generic
+shell, AppleScript, Shortcuts, file-deletion, keyboard/mouse, or menu/Skill
+security-bypass surface is shipped.
+
+The clean-install proof and lifecycle validation above remain authoritative.
+Known limitations and deferred installation/accessibility/distribution work are
+unchanged and are not release blockers. The existing `v1.0.0` tag remains
+untouched at `948a600a860986a437a583dd4a70c55eeb7870be`.
+
+**PHASE 12 PRE-PUBLICATION GATES PASSED — v1.5.0 PUBLICATION APPROVED**
