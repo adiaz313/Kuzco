@@ -6,6 +6,10 @@ Built around a local-first architecture, Kuzco keeps inference, memory, document
 
 Kuzco v1.0.0 includes always-on wake-word detection, local speech-to-text and text-to-speech, contextual memory, RAG over local documents, web research with provenance, macOS utilities, weather and timekeeping, configurable personality, visual status indicators, and a deterministic security layer governing tool execution.
 
+Post-v1 development adds [Apple Reminders and lightweight tasks](docs/REMINDERS.md)
+through a narrow local EventKit helper. macOS asks for Reminders access on first use.
+Timers are deferred.
+
 The first release targets a tested Apple Silicon configuration and keeps the architecture inspectable and modifiable.
 
 ## Supported configuration
@@ -112,6 +116,43 @@ connection, select a working microphone and run `service.py restart`.
 `service.py stop` stops it now; `service.py uninstall` removes login startup but
 retains all user data. There is one per-user service label and one microphone lock:
 installing another clone replaces that user's service, not a parallel assistant.
+
+The installed background host also provides a small native [menu-bar status and
+master control](docs/MENU_BAR.md). Its switch stops or restores the actual wake
+listener; status checks are local and never call Llama.
+
+Post-v1 development adds [bounded Mac control](docs/MAC_CONTROL.md) for volume,
+focus, and selected native Apple Music actions. Re-run the asset setup and
+reinstall the background service after updating this source; macOS may request
+Automation permission for Music. Unsupported Podcasts, artist/album queue,
+app-quit, and brightness requests are documented there.
+
+The post-v1 read-only Calendar integration supports explicit requests for
+today, tomorrow, and the next event or timed event. It uses a separate signed
+EventKit helper and never creates, changes, or removes calendar events. macOS
+requires full Calendar permission to read EventKit data even though Kuzco's
+helper exposes read operations only. Re-run asset setup after updating, then
+allow **Kuzco Calendar** under Privacy & Security → Calendars when prompted.
+Calendar details are retrieved only for an explicit request and are not added
+to memory, greeting context, ordinary logs, or unrelated model prompts.
+
+Post-v1 Maps/Places support uses a separate signed Apple MapKit helper for
+structured place search, explicit ambiguity, route distance/ETA, and opening a
+validated route in Apple Maps. See [Maps/Places](docs/MAPS_PLACES.md). Place
+search and routing use Apple's network service; Llama remains local. Current
+location is requested only for a nearby/current-origin operation and is never
+stored in memory or ordinary logs. Re-run asset setup after updating.
+
+The post-v1 [Travel Time Skill](docs/TRAVEL_TIME.md) composes those grounded
+MapKit estimates with deterministic time arithmetic and, when explicitly
+requested, the existing read-only Calendar integration. It does not retain
+location or route history and applies extra time only when the user supplies a
+buffer.
+
+The post-v1 [Recommendations Skill](docs/RECOMMENDATIONS.md) selects a small
+set of real local MapKit candidates using grounded distance. It does not invent
+ratings, hours, prices, reviews, or menu details and stores no recommendation
+or location history.
 
 ## Development and limitations
 

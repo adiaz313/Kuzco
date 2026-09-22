@@ -7,7 +7,7 @@ import json
 import re
 import time
 import logging
-from . import greeting,timekeeping,weather
+from . import greeting,greeting_context,timekeeping,weather,reminders,mac_control,calendar_readonly,calendar_skill,maps_places,travel_time,recommendations
 
 
 def clean(prompt):
@@ -35,6 +35,27 @@ def previous_weather(history):
 
 def handle(prompt, history, personality, execute, debug_print, debug):
     started=time.perf_counter()
+    reminder = reminders.handle(prompt, history, personality, execute, debug_print, debug)
+    if reminder is not None:
+        return reminder
+    control = mac_control.handle(prompt, history, personality, execute, debug_print, debug)
+    if control is not None:
+        return control
+    calendar = calendar_readonly.handle(prompt, history, personality, execute, debug_print, debug)
+    if calendar is not None:
+        return calendar
+    schedule = calendar_skill.handle(prompt, history, personality, execute, debug_print, debug)
+    if schedule is not None:
+        return schedule
+    travel = travel_time.handle(prompt, history, personality, execute, debug_print, debug)
+    if travel is not None:
+        return travel
+    recommendation = recommendations.handle(prompt, history, personality, execute, debug_print, debug)
+    if recommendation is not None:
+        return recommendation
+    places = maps_places.handle(prompt, history, personality, execute, debug_print, debug)
+    if places is not None:
+        return places
     text=clean(prompt)
     clock=timekeeping.parse(text)
     forecast=weather.parse(text,previous_weather(history))
@@ -57,7 +78,8 @@ def handle(prompt, history, personality, execute, debug_print, debug):
         if history:
             try:previous=json.loads(history[-1][-1]['content']).get('answer')
             except (ValueError,KeyError,TypeError):pass
-        answer=greeting.respond(personality,previous)
+        observation=greeting_context.gather(execute)
+        answer=greeting.respond(personality,previous,greeting_context.daypart(),observation)
     else:
         tool='get_current_time' if clock else 'get_weather'
         call={'tool':tool,'arguments':{}}

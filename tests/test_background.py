@@ -36,7 +36,7 @@ class BackgroundTests(unittest.TestCase):
         sd=SimpleNamespace(PortAudioError=RuntimeError,query_devices=lambda **k:{'name':'selected','max_input_channels':1})
         def refresh(_):self.assertFalse(opened[0])
         def conversation(agent,**kwargs):self.assertEqual(kwargs['listener'].listen(),'hello')
-        with patch('background.configure_logging',return_value=logger),patch('background.signal.signal'),patch('background.threading.Event',side_effect=[stop,resume]),patch('listener_lock.ListenerLock'),patch('indicator.Indicator'),patch('wake_input.WakeSpeechInput',Base),patch('voice.conversation',side_effect=conversation),patch.dict('sys.modules',{'sounddevice':sd}),patch('audio_devices.InputWatch',side_effect=[first,second]),patch('audio_devices.default_input',return_value=1),patch('audio_devices.refresh',side_effect=refresh) as reset:
+        with patch('background.configure_logging',return_value=logger),patch('background.signal.signal'),patch('background.threading.Event',side_effect=[stop,resume]),patch('listener_lock.ListenerLock'),patch('indicator.Indicator'),patch('wake_input.WakeSpeechInput',Base),patch('voice.conversation',side_effect=conversation),patch.dict('sys.modules',{'sounddevice':sd}),patch('audio_devices.InputWatch',side_effect=[first,second]),patch('audio_devices.default_input',return_value=1),patch('audio_devices.refresh',side_effect=refresh) as reset,patch('runtime_status.listener'):
             self.assertEqual(background.run(),0)
         self.assertEqual(len(attempts),2);reset.assert_called_once();stop.wait.assert_not_called()
 
@@ -181,5 +181,5 @@ class BackgroundTests(unittest.TestCase):
             stream = Mock(); stream.read.return_value = (b'pcm', False)
             self.assertEqual(kwargs['listener'].capture(stream, Mock()), (b'pcm', False))
             sd.query_devices.assert_not_called()
-        with patch('background.configure_logging', return_value=fake_logger), patch('background.signal.signal'), patch('listener_lock.ListenerLock'), patch('indicator.Indicator'), patch('wake_input.WakeSpeechInput', Base), patch('voice.conversation', side_effect=session), patch.dict('sys.modules', {'sounddevice': sd}):
+        with patch('background.configure_logging', return_value=fake_logger), patch('background.signal.signal'), patch('listener_lock.ListenerLock'), patch('indicator.Indicator'), patch('wake_input.WakeSpeechInput', Base), patch('voice.conversation', side_effect=session), patch.dict('sys.modules', {'sounddevice': sd}), patch('runtime_status.listener'):
             self.assertEqual(background.run(), 0)

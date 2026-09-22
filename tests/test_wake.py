@@ -17,6 +17,7 @@ class WakeTests(unittest.TestCase):
     def test_wake_name_cleanup_preserves_other_words(self):
         self.assertEqual(request_text("Kuzco, what time is it?"), "what time is it?")
         self.assertEqual(request_text("Hey Cusco!"), "")
+        self.assertEqual(request_text("Cuz go, unmute."), "unmute.")
         self.assertEqual(request_text("Explain Kuzco."), "Explain Kuzco.")
         self.assertEqual(request_text("Costco is closed."), "Costco is closed.")
 

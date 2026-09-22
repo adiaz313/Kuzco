@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 import main
-from memory import MemoryStore, handle, parse
+from memory import LIMIT, MemoryStore, handle, parse
 from routed import RoutingAgent
 from skills import select
 
@@ -119,6 +119,17 @@ class MemoryTests(unittest.TestCase):
 
     def test_all_memory_request_requires_topic(self):
         self.save();self.assertIn('specify a topic',handle('What do you remember?'))
+
+    def test_explicit_about_me_recall_lists_bounded_personal_memories(self):
+        self.save('I prefer decaf tea')
+        self.save('I avoid artificial sweeteners')
+        answer = handle('What do you remember about me?')
+        self.assertIn('decaf tea', answer)
+        self.assertIn('artificial sweeteners', answer)
+        self.assertLessEqual(answer.count('\n'), LIMIT)
+
+    def test_about_me_empty_state_is_truthful(self):
+        self.assertIn('no stored memories', handle('What do you remember about myself?').lower())
 
     def test_oversized(self):
         self.assertIn('500',self.save('x'*501))

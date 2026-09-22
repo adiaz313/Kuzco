@@ -15,7 +15,7 @@ MODEL = asset("sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20")
 
 def request_text(transcript):
     """Remove only a leading wake name; preserve the raw transcription on screen."""
-    return re.sub(r"^\s*(?:hey\s+)?(?:kuzco|cuzco|cusco|kusco|kuzko)\b[\s,.!?—:-]*",
+    return re.sub(r"^\s*(?:hey\s+)?(?:kuzco|cuzco|cusco|kusco|kuzko|cuz\s+go)\b[\s,.!?—:-]*",
                   "", transcript, count=1, flags=re.I).strip()
 
 

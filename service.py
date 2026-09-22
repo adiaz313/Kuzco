@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 import re
+import shutil
 
 ROOT = Path(__file__).resolve().parent
 from configuration import home, asset
@@ -36,12 +37,22 @@ def launchctl(*args, check=True):
 
 def build():
     (APP / 'Contents/MacOS').mkdir(parents=True, exist_ok=True)
+    (APP / 'Contents/Resources').mkdir(parents=True, exist_ok=True)
+    from configuration import load
+    runtime = load()
     info = {'CFBundleIdentifier': LABEL, 'CFBundleName': 'Kuzco Background',
             'CFBundleDisplayName': 'Kuzco Background', 'CFBundleExecutable': 'KuzcoBackground',
             'CFBundlePackageType': 'APPL', 'CFBundleVersion': '1', 'LSUIElement': True,
             'NSMicrophoneUsageDescription': 'Kuzco listens locally for its wake word and transcribes activated requests offline.',
-            'KuzcoProject': str(ROOT), 'KuzcoHome': str(home())}
+            'NSRemindersUsageDescription': 'Kuzco accesses Apple Reminders only when you ask to create, list, complete, or remove a reminder.',
+            'NSRemindersFullAccessUsageDescription': 'Kuzco accesses Apple Reminders only when you ask to create, list, complete, or remove a reminder.',
+            'NSCalendarsFullAccessUsageDescription': 'Kuzco reads Apple Calendar events only when you explicitly ask about your schedule. It cannot change events.',
+            'NSAppleEventsUsageDescription': 'Kuzco controls Apple Music only when you ask for a bounded playback action.',
+            'KuzcoProject': str(ROOT), 'KuzcoHome': str(home()),
+            'KuzcoPort': runtime['port'], 'KuzcoModel': runtime['model']}
     (APP / 'Contents/Info.plist').write_bytes(plistlib.dumps(info))
+    shutil.copyfile(ROOT / 'assets/kuzco-menu-icon-statusbar.png',
+                    APP / 'Contents/Resources/kuzco-menu-icon-statusbar.png')
     subprocess.run(['/usr/bin/xcrun', 'swiftc', str(ROOT / 'native/BackgroundLauncher.swift'),
                     '-o', str(APP / 'Contents/MacOS/KuzcoBackground')], check=True, timeout=120)
     # Finder metadata on this generated bundle can prevent local code signing.

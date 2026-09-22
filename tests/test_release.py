@@ -30,6 +30,14 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(set(configuration.load()), {'model','port','personality','documents'})
         self.assertEqual((self.root/'config/kuzco.toml').stat().st_mode & 0o777, 0o600)
 
+    def test_missing_configured_document_does_not_disable_unrelated_requests(self):
+        configuration.initialize()
+        missing = self.root / 'moved-private-document.docx'
+        (self.root/'config/kuzco.toml').write_text(
+            'port = 1234\nmodel = "meta-llama-3.1-8b-instruct"\n'
+            'personality = "kuzco"\ndocuments = ["' + str(missing) + '"]\n')
+        self.assertEqual(configuration.documents(), [])
+
     def test_setup_does_not_overwrite_user_settings(self):
         configuration.initialize()
         p=self.root/'config/security_settings.json'

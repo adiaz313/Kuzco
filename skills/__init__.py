@@ -15,7 +15,8 @@ FAST_REGISTRY = (WEATHER, TIMEKEEPING, GREETING)
 GENERAL = Skill('general','General reasoning and conservative mixed-task fallback.',
     '''For local date/time use get_current_time; application launches use open_application.
 Personal document questions use search_documents. Current external facts require search_web,
-read_webpage or research_web; never guess current facts without evidence. If a task crosses
+read_webpage or research_web; never guess current facts without evidence. Apple Reminders
+tools require an explicit reminder/task request and trusted policy. If a task crosses
 categories, coordinate the available tools within the budget. Stable knowledge needs no tool.''',
     None,'yes','existing general agent','request and recent history','concise accurate response',lambda p:True)
 CONVERSATION = Skill('general',GENERAL.description,'Answer this stable conversational request directly.',

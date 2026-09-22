@@ -67,6 +67,7 @@ def run():
     import voice
     import sounddevice as sd
     from audio_devices import InputWatch, InputChanged, refresh, default_input
+    from runtime_status import listener as listener_status
 
     logger = configure_logging()
     stopped, resumed = threading.Event(), threading.Event()
@@ -80,6 +81,7 @@ def run():
     class RecoveringInput(WakeSpeechInput):
         def capture(self, stream, on_wake):
             logger.info('Microphone initialized; wake listening active')
+            listener_status(True)
             watch=InputWatch()
             if hasattr(self,'input_id'):watch.selected=self.input_id
             class ResumableStream:
@@ -89,7 +91,10 @@ def run():
                         resumed.clear()
                         raise VoiceInputError('Mac resumed; reopening microphone')
                     return stream.read(frames)
-            return super().capture(ResumableStream(), on_wake)
+            try:
+                return super().capture(ResumableStream(), on_wake)
+            finally:
+                listener_status(False)
 
         def listen(self):
             refresh_needed=False
@@ -140,6 +145,7 @@ def run():
             return 'The local model could not process the request. Please check LM Studio and its loaded model, then try again.'
 
     logger.info('Background Kuzco started; pid=%s', __import__('os').getpid())
+    listener_status(False)  # Remove stale readiness from an earlier process.
     try:
         with ListenerLock(), contextlib.redirect_stdout(EventOutput(logger)), contextlib.redirect_stderr(EventOutput(logger)):
             listener = RecoveringInput()
@@ -156,6 +162,7 @@ def run():
         logger.exception('Background process failed')
         return 1
     finally:
+        listener_status(False)
         for handler in list(logger.handlers):
             handler.close()
             logger.removeHandler(handler)

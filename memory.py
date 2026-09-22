@@ -107,6 +107,13 @@ class MemoryStore:
                     db.execute('INSERT INTO memory_search(rowid,content) VALUES (?,?)',(row.lastrowid,content))
                     return 'Memory saved.'
                 if action == 'recall':
+                    topic = clean(args[0]).casefold()
+                    if topic in {'me', 'myself'}:
+                        rows = db.execute(
+                            'SELECT id,content FROM memories ORDER BY updated_at DESC, id DESC LIMIT ?',
+                            (LIMIT,)).fetchall()
+                        return ('Stored memories:\n'+'\n'.join(f"[{r['id']}] {r['content']}" for r in rows)) \
+                            if rows else 'I have no stored memories about you.'
                     words = re.findall(r'\w+', args[0].casefold())
                     stop = {'my','the','a','about','preferences','preference','memories','that','is','of','and'}
                     terms = [w for w in words if w not in stop][:12]

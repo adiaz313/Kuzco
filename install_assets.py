@@ -100,7 +100,15 @@ def main(argv=None):
                     '-o', str(asset('indicator'))], check=True, timeout=120)
     from weather_location import build
     build()
-    print('Local voice assets and weather location helper installed. No service was installed or restarted.')
+    from reminders import build as build_reminders
+    build_reminders()
+    from calendar_read import build as build_calendar
+    build_calendar()
+    from mac_control import build as build_mac_control
+    build_mac_control()
+    from maps_places import build as build_maps
+    build_maps()
+    print('Local voice assets and bounded macOS helpers installed. No service was installed or restarted.')
 
 
 if __name__ == '__main__':

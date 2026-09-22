@@ -40,6 +40,27 @@ TOOLS = MappingProxyType({
     'read_webpage': Tool(Risk.READ_ONLY, ('url', 'query'), 1500),
     'research_web': Tool(Risk.READ_ONLY, ('query',), 300),
     'open_application': Tool(Risk.LOCAL_ACTION, ('application_name',), 100),
+    'focus_application': Tool(Risk.LOCAL_ACTION, ('application_name',), 80),
+    'volume_adjust': Tool(Risk.LOCAL_ACTION, ('direction',), 8),
+    'volume_set': Tool(Risk.LOCAL_ACTION, ('percent',), 3),
+    'volume_mute': Tool(Risk.LOCAL_ACTION, ('muted',), 5),
+    'music_transport': Tool(Risk.LOCAL_ACTION, ('action',), 8),
+    'music_play_named': Tool(Risk.LOCAL_ACTION, ('kind', 'name'), 100),
+    'calendar_day': Tool(Risk.READ_ONLY, ('day',), 10),
+    'calendar_next': Tool(Risk.READ_ONLY, ('kind',), 5),
+    'calendar_range': Tool(Risk.READ_ONLY, ('start_iso', 'end_iso', 'kind'), 40),
+    'greeting_calendar_context': Tool(Risk.READ_ONLY, ()),
+    'places_search': Tool(Risk.READ_ONLY, ('query', 'near'), 160),
+    'route_estimate': Tool(Risk.READ_ONLY, ('origin', 'destination', 'mode'), 160),
+    'maps_open_route': Tool(Risk.LOCAL_ACTION, ('destination', 'mode'), 160),
+    'travel_route': Tool(Risk.READ_ONLY, ('destination', 'calendar_selector', 'mode'), 500),
+    'recommend_places': Tool(Risk.READ_ONLY, ('query', 'calendar_selector'), 160),
+    'reminders_list': Tool(Risk.READ_ONLY, ()),
+    'reminders_create': Tool(Risk.LOCAL_ACTION, ('title', 'due_iso'), 200),
+    'reminders_complete': Tool(Risk.LOCAL_ACTION, ('title',), 200),
+    # Exact user wording plus unique native item selection is required; no bulk
+    # removal exists. This is an explicit single-item local action.
+    'reminders_remove': Tool(Risk.LOCAL_ACTION, ('title',), 200),
     'memory_recall': Tool(Risk.READ_ONLY, ('topic',)),
     'memory_remember': Tool(Risk.LOCAL_ACTION, ('content',)),
     'memory_update': Tool(Risk.LOCAL_ACTION, ('target', 'content')),
@@ -81,13 +102,84 @@ def evaluate(name, args, registry=TOOLS):
     if not isinstance(args, dict) or set(args) != set(tool.fields):
         return Decision.DENY
     if any(not isinstance(v, str) or len(v) > tool.limit or any(ord(c) < 32 for c in v)
-           or (not v.strip() and name != 'memory_recall') for v in args.values()):
+           or (not v.strip() and name != 'memory_recall'
+               and not (name == 'reminders_create' and key == 'due_iso')
+               and not (name == 'travel_route' and key in {'destination', 'calendar_selector'})
+               and not (name == 'recommend_places' and key == 'calendar_selector'))
+           for key, v in args.items()):
         return Decision.DENY
     if tool.risk == Risk.SENSITIVE_DESTRUCTIVE:
         return Decision.DENY  # No production capability in this class.
     if tool.risk == Risk.EXTERNAL_ACTION:
         return Decision.CONFIRM  # Reserved for explicitly registered future code.
     prompt = REQUEST.get()
+    if name in {'focus_application', 'volume_adjust', 'volume_set', 'volume_mute',
+                'music_transport', 'music_play_named'}:
+        if prompt is None:
+            return Decision.DENY
+        from mac_intent import parse as parse_mac
+        parsed = parse_mac(prompt)
+        if not parsed or parsed != (name, args):
+            return Decision.DENY
+        if name == 'volume_set' and not 0 <= int(args['percent']) <= 100:
+            return Decision.DENY
+    if name == 'greeting_calendar_context':
+        if prompt is None:
+            return Decision.DENY
+        from skills.usability import clean
+        from skills.greeting import matches
+        if not matches(clean(prompt)):
+            return Decision.DENY
+    if name in {'calendar_day', 'calendar_next', 'calendar_range'}:
+        if prompt is None:
+            return Decision.DENY
+        from calendar_intent import parse as parse_calendar
+        parsed = parse_calendar(prompt)
+        if not parsed:
+            from skills.calendar_skill import parse as parse_calendar_skill
+            parsed = parse_calendar_skill(prompt)
+        if not parsed or parsed[:2] != (name, args):
+            return Decision.DENY
+    if name in {'places_search', 'route_estimate', 'maps_open_route'}:
+        if prompt is None:
+            return Decision.DENY
+        from maps_intent import parse as parse_maps
+        parsed = parse_maps(prompt)
+        if not parsed or parsed[:2] != (name, args):
+            return Decision.DENY
+    if name == 'travel_route':
+        if prompt is None:
+            return Decision.DENY
+        from travel_intent import parse as parse_travel
+        parsed = parse_travel(prompt)
+        if not parsed or parsed[:2] != (name, args):
+            return Decision.DENY
+    if name == 'recommend_places':
+        if prompt is None:
+            return Decision.DENY
+        from recommendation_intent import parse as parse_recommendation
+        parsed = parse_recommendation(prompt)
+        if not parsed or parsed[:2] != (name, args):
+            return Decision.DENY
+    if name.startswith('reminders_'):
+        if prompt is None:
+            return Decision.DENY
+        from reminder_intent import parse
+        from datetime import datetime
+        parsed = parse(prompt)
+        if not parsed or parsed[0] != name:
+            return Decision.DENY
+        expected = parsed[1]
+        if name == 'reminders_create' and expected.get('due_iso'):
+            if args.get('title') != expected['title']:
+                return Decision.DENY
+            try:
+                if abs((datetime.fromisoformat(args['due_iso']) - datetime.fromisoformat(expected['due_iso'])).total_seconds()) > 10:
+                    return Decision.DENY
+            except (ValueError, TypeError):
+                return Decision.DENY
+        elif args != expected:
+            return Decision.DENY
     if name == 'open_application':
         app = args['application_name'].strip()
         if not app or not app[0].isalnum() or any(not (c.isalnum() or c in " .-'()+&") for c in app):

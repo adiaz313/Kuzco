@@ -45,7 +45,9 @@ def asset(relative):
 
 
 def documents():
-    return [Path(p).expanduser() for p in load()['documents']]
+    # A moved/deleted optional document must not disable unrelated assistant
+    # capabilities. Explicit --docs paths still fail fast in main.py.
+    return [path for p in load()['documents'] if (path := Path(p).expanduser()).exists()]
 
 
 def initialize():
