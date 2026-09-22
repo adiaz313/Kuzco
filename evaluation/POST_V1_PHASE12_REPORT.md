@@ -1,6 +1,6 @@
 # Post-v1 Phase 12 — v1.5.0 Release Engineering
 
-Status: **12A COMPLETE; 12B SOAK IN PROGRESS; 12C–12F COMPLETE; 12G ENGINEERING COMPLETE / HUMAN LIFECYCLE CHECK PENDING**
+Status: **12A COMPLETE; 12B SOAK IN PROGRESS; 12C–12G COMPLETE**
 
 Target release: Kuzco v1.5.0. Product and UX scope are frozen. No v1.5.0 tag
 or release has been created or pushed. The existing annotated v1.0.0 tag remains
@@ -229,7 +229,12 @@ warnings; and current MapKit source emits macOS 26 deprecation warnings while
 remaining functional. No installer, wizard, downloader shell, or packaging
 architecture was added.
 
-The remaining 12G evidence is a short human lifecycle/voice check of the clean
-service: menu/wake/STT/Piper, OFF with no wake while Local Model remains green
-Available, ON with wake restored, Quit, and normal relaunch. The existing active
-soak service was not displaced merely to manufacture that evidence.
+The clean service also passed its human lifecycle and voice check. The user
+confirmed the menu showed Kuzco running with Wake Word On and Local Model
+Available; wake, STT, the perimeter indicator, and Piper completed a time
+request; disabling Kuzco showed Paused and Wake Word Off, prevented wake
+activation, and correctly left Local Model green and Available; re-enabling
+restored wake operation; a greeting completed through Piper; and Quit removed
+the menu item. After this isolated check, the normal service using the private
+Kuzco data directory was restored and verified running. No clean-install test
+state replaced or entered the user's normal private data directory.
